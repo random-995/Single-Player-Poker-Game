@@ -172,6 +172,27 @@ function handleConsoleCmd(raw) {
     return;
   }
 
+  // Chips command: "chips <name> <amount>" or "chips all <amount>"
+  const chipsM = val.match(/^chips\s+(.+?)\s+(\d+)$/i);
+  if (chipsM) {
+    if (!G) { consolePrint('No game running.', 'result'); return; }
+    const who    = chipsM[1].trim().toLowerCase();
+    const amount = Math.max(0, +chipsM[2]);
+    const targets = who === 'all'
+      ? G.players.filter(p => !p.eliminated)
+      : G.players.filter(p => !p.eliminated && p.name.toLowerCase() === who);
+    if (!targets.length) {
+      consolePrint(`No player named "${chipsM[1].trim()}".`, 'result'); return;
+    }
+    for (const p of targets) {
+      p.chips = amount;
+      p.allIn = false;
+      consolePrint(`${p.name}: chips set to $${amount}`, 'result');
+    }
+    render();
+    return;
+  }
+
   // Tarot command: "tarot" or "tarot N"
   const tm = val.match(/^tarot(?:\s+(\d+))?$/i);
   if (tm) {
