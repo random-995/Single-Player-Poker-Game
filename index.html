@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>No-Limit Hold'em</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── Setup overlay ─────────────────────────────────────────────────────── -->
+<div id="setup">
+  <div class="setup-card">
+    <h1>No-Limit Hold'em</h1>
+
+    <div class="mode-row">
+      <label class="mode-opt">
+        <input type="radio" name="mode" id="mode-human" checked> Play as human
+      </label>
+      <label class="mode-opt">
+        <input type="radio" name="mode" id="mode-spectate"> Spectate
+      </label>
+    </div>
+
+    <div class="seat-rows">
+      <!-- Human mode: Seat 1 = You (player select) -->
+      <div class="seat-row seat0-human-label">
+        <span class="seat-num">Seat 1</span>
+        <div class="seat-selects">
+          <span class="human-tag">You</span>
+          <select id="player-human" class="player-sel">
+            <option value="none">No Skill</option>
+            <option value="swap">Swap</option>
+            <option value="prediction">Prediction</option>
+          </select>
+        </div>
+      </div>
+      <!-- Spectate mode: Seat 1 is configurable -->
+      <div class="seat-row" id="seat0-row" style="display:none">
+        <span class="seat-num">Seat 1</span>
+        <div class="seat-selects">
+          <select id="player0" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot0">
+            <option value="tight">Tight</option>
+            <option value="aggressive">Aggressive</option>
+            <option value="loose">Loose</option>
+          </select>
+        </div>
+      </div>
+      <div class="seat-row" id="seat1-row">
+        <span class="seat-num">Seat 2</span>
+        <div class="seat-selects">
+          <select id="player1" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot1">
+            <option value="tight">Tight</option>
+            <option value="aggressive" selected>Aggressive</option>
+            <option value="loose">Loose</option>
+          </select>
+        </div>
+      </div>
+      <div class="seat-row" id="seat2-row">
+        <span class="seat-num">Seat 3</span>
+        <div class="seat-selects">
+          <select id="player2" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot2">
+            <option value="tight">Tight</option>
+            <option value="aggressive">Aggressive</option>
+            <option value="loose" selected>Loose</option>
+          </select>
+        </div>
+      </div>
+      <div class="seat-row" id="seat3-row">
+        <span class="seat-num">Seat 4</span>
+        <div class="seat-selects">
+          <select id="player3" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot3">
+            <option value="tight" selected>Tight</option>
+            <option value="aggressive">Aggressive</option>
+            <option value="loose">Loose</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seed row -->
+    <div class="seed-row-setup">
+      <span class="seed-lbl">Seed</span>
+      <input type="text" id="init-seed-input" placeholder="random">
+      <button id="btn-init-dice" class="dice-btn" title="Roll random seed">⚅</button>
+    </div>
+
+    <!-- Settings -->
+    <button id="btn-settings" class="settings-toggle">⚙ Settings</button>
+    <div id="settings-panel" style="display:none">
+      <label class="setting-opt">
+        <input type="checkbox" id="opt-blinds" checked>
+        <span>Blind Bets (SB / BB)</span>
+      </label>
+      <label class="setting-opt">
+        <span>Players</span>
+        <select id="opt-num-players">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="setup-info">Starting chips $5,000 · Blinds $50 / $100</div>
+    <button id="btn-start">Start Game</button>
+  </div>
+</div>
+
+<!-- ── Game screen ────────────────────────────────────────────────────────── -->
+<div id="game" style="display:none">
+
+  <!-- LEFT: Player list ─────────────────────────────────────────────────── -->
+  <aside id="player-panel">
+    <div class="panel-hd">
+      <span>Players</span>
+    </div>
+
+    <div id="player-list">
+
+      <div class="prow" id="prow-0">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="0" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="0" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+      <div class="prow" id="prow-1">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="1" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="1" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+      <div class="prow" id="prow-2">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="2" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="2" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+      <div class="prow" id="prow-3">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="3" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="3" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- RIGHT AREA: table + log + console ─────────────────────────────────── -->
+  <div id="right-area">
+    <div id="content-area">
+
+      <!-- CENTER ────────────────────────────────────────────────────────── -->
+      <main id="table-wrap">
+
+        <div id="felt">
+          <div id="street-label"></div>
+          <div id="board"></div>
+          <div id="pot-label"></div>
+        </div>
+
+        <!-- Between-street / between-phase next button -->
+        <button id="btn-next-street" style="display:none">→</button>
+
+        <!-- Human action buttons -->
+        <div id="action-area">
+          <button id="btn-fold"  class="abtn fold">Fold</button>
+          <button id="btn-call"  class="abtn call">Check</button>
+          <button id="btn-raise" class="abtn raise">Raise ▲</button>
+          <div id="raise-box">
+            <input type="range" id="raise-slider" min="200" max="5000" value="200">
+            <span id="raise-label">$200</span>
+            <button id="btn-confirm-raise" class="abtn confirm">
+              Raise to <span id="raise-label-btn">$200</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Next-hand panel (shown after hand ends) -->
+        <div id="next-hand-panel" style="display:none">
+          <div class="seed-row">
+            <span class="seed-lbl">Next seed</span>
+            <input type="text" id="next-seed-input" placeholder="auto">
+            <button id="btn-dice" class="dice-btn" title="Roll random seed">⚅</button>
+          </div>
+          <button id="btn-next-hand" class="abtn next">Next Hand →</button>
+        </div>
+
+      </main>
+
+      <!-- RIGHT: Log ──────────────────────────────────────────────────── -->
+      <aside id="log-panel">
+        <div class="panel-hd">
+          <span>Log</span>
+          <select id="log-hand-select"></select>
+        </div>
+        <div id="log"></div>
+      </aside>
+
+    </div><!-- /content-area -->
+
+    <!-- CONSOLE ─────────────────────────────────────────────────────────── -->
+    <div id="console-panel">
+      <div id="console-handle">
+        <span class="console-title">Console</span>
+      </div>
+      <div id="console-body">
+        <div id="console-notebook"></div>
+        <div id="console-cmdline">
+          <span class="cmd-prompt">&gt;</span>
+          <input type="text" id="console-input" autocomplete="off" spellcheck="false" placeholder="1d10">
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right-area -->
+
+</div>
+
+<!-- Poker equity (poker-odds-calc bundled) -->
+<script src="equity.bundle.js"></script>
+<!-- Strategy files -->
+<script src="strat/tight.js"></script>
+<script src="strat/aggressive.js"></script>
+<script src="strat/loose.js"></script>
+<!-- Player files -->
+<script src="players/wm.js"></script>
+<script src="players/thief.js"></script>
+<script src="players/neumann.js"></script>
+<!-- Core -->
+<script src="constants.js"></script>
+<script src="cards.js"></script>
+<script src="game.js"></script>
+<script src="ui.js"></script>
+<script src="boot.js"></script>
+</body>
+</html>

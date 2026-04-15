@@ -1,0 +1,17 @@
+{
+  "name": "poker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "boot.js",
+  "scripts": {
+    "build": "esbuild equity.js --bundle --format=iife --outfile=equity.bundle.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "esbuild": "^0.28.0",
+    "poker-odds-calc": "^0.0.14"
+  }
+}
