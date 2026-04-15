@@ -1656,10 +1656,10 @@
           })();
           var ctxClearTimeout = context.clearTimeout !== root.clearTimeout && context.clearTimeout, ctxNow = Date2 && Date2.now !== root.Date.now && Date2.now, ctxSetTimeout = context.setTimeout !== root.setTimeout && context.setTimeout;
           var nativeCeil = Math2.ceil, nativeFloor = Math2.floor, nativeGetSymbols = Object2.getOwnPropertySymbols, nativeIsBuffer = Buffer2 ? Buffer2.isBuffer : undefined, nativeIsFinite = context.isFinite, nativeJoin = arrayProto.join, nativeKeys = overArg(Object2.keys, Object2), nativeMax = Math2.max, nativeMin = Math2.min, nativeNow = Date2.now, nativeParseInt = context.parseInt, nativeRandom = Math2.random, nativeReverse = arrayProto.reverse;
-          var DataView = getNative(context, "DataView"), Map = getNative(context, "Map"), Promise2 = getNative(context, "Promise"), Set = getNative(context, "Set"), WeakMap = getNative(context, "WeakMap"), nativeCreate = getNative(Object2, "create");
+          var DataView = getNative(context, "DataView"), Map = getNative(context, "Map"), Promise2 = getNative(context, "Promise"), Set2 = getNative(context, "Set"), WeakMap = getNative(context, "WeakMap"), nativeCreate = getNative(Object2, "create");
           var metaMap = WeakMap && new WeakMap();
           var realNames = {};
-          var dataViewCtorString = toSource(DataView), mapCtorString = toSource(Map), promiseCtorString = toSource(Promise2), setCtorString = toSource(Set), weakMapCtorString = toSource(WeakMap);
+          var dataViewCtorString = toSource(DataView), mapCtorString = toSource(Map), promiseCtorString = toSource(Promise2), setCtorString = toSource(Set2), weakMapCtorString = toSource(WeakMap);
           var symbolProto = Symbol2 ? Symbol2.prototype : undefined, symbolValueOf = symbolProto ? symbolProto.valueOf : undefined, symbolToString = symbolProto ? symbolProto.toString : undefined;
           function lodash(value) {
             if (isObjectLike(value) && !isArray(value) && !(value instanceof LazyWrapper)) {
@@ -3426,8 +3426,8 @@
               return func(number);
             };
           }
-          var createSet = !(Set && 1 / setToArray(new Set([, -0]))[1] == INFINITY) ? noop : function(values2) {
-            return new Set(values2);
+          var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop : function(values2) {
+            return new Set2(values2);
           };
           function createToPairs(keysFunc) {
             return function(object) {
@@ -3726,7 +3726,7 @@
             return result2;
           };
           var getTag = baseGetTag;
-          if (DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag || Map && getTag(new Map()) != mapTag || Promise2 && getTag(Promise2.resolve()) != promiseTag || Set && getTag(new Set()) != setTag || WeakMap && getTag(new WeakMap()) != weakMapTag) {
+          if (DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag || Map && getTag(new Map()) != mapTag || Promise2 && getTag(Promise2.resolve()) != promiseTag || Set2 && getTag(new Set2()) != setTag || WeakMap && getTag(new WeakMap()) != weakMapTag) {
             getTag = function(value) {
               var result2 = baseGetTag(value), Ctor = result2 == objectTag ? value.constructor : undefined, ctorString = Ctor ? toSource(Ctor) : "";
               if (ctorString) {
@@ -6677,9 +6677,9 @@
     }
   });
 
-  // equity.js
+  // src/equity.js
   var require_equity = __commonJS({
-    "equity.js"() {
+    "src/equity.js"() {
       var { TexasHoldem } = require_dist();
       var SUIT_MAP = { "\u2660": "s", "\u2665": "h", "\u2666": "d", "\u2663": "c" };
       function toOddsCard(card) {
@@ -6687,21 +6687,43 @@
         const suit = SUIT_MAP[card.suit];
         return rank + suit;
       }
-      window.computeEquityAllPlayers = function(playersHands, board) {
-        try {
-          const t = new TexasHoldem();
-          for (const hand of playersHands) {
-            t.addPlayer(hand.map(toOddsCard));
-          }
-          if (board.length) {
-            t.setBoard(board.map(toOddsCard));
-          }
-          const res = t.calculate().result;
-          const total = res.iterations;
-          return res.players.map((p) => (p.wins + p.ties / 2) / total);
-        } catch (e) {
-          return playersHands.map(() => 1 / playersHands.length);
+      function shuffleArr(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
         }
+        return a;
+      }
+      var ALL_CARDS = [];
+      for (const r of ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"])
+        for (const s of ["c", "d", "h", "s"])
+          ALL_CARDS.push(r + s);
+      window.computePerceivedEquity = function(hole, board, numOpponents, iterations = 800) {
+        numOpponents = Math.max(1, numOpponents || 1);
+        const holeStr = hole.map(toOddsCard);
+        const boardStr = board.map(toOddsCard);
+        const knownSet = /* @__PURE__ */ new Set([...holeStr, ...boardStr]);
+        const remaining = ALL_CARDS.filter((c) => !knownSet.has(c));
+        let wins = 0, ties = 0, valid = 0;
+        for (let i = 0; i < iterations; i++) {
+          const d = shuffleArr(remaining);
+          let idx = 0;
+          try {
+            const t = new TexasHoldem();
+            t.addPlayer(holeStr);
+            for (let j = 0; j < numOpponents; j++) t.addPlayer([d[idx++], d[idx++]]);
+            const fullBoard = [...boardStr];
+            while (fullBoard.length < 5) fullBoard.push(d[idx++]);
+            t.setBoard(fullBoard);
+            const res = t.calculate().result;
+            wins += res.players[0].wins;
+            ties += res.players[0].ties;
+            valid++;
+          } catch (e) {
+          }
+        }
+        return valid === 0 ? 1 / (numOpponents + 1) : (wins + ties / 2) / valid;
       };
     }
   });

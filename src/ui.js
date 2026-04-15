@@ -110,19 +110,22 @@ function handleConsoleCmd(raw) {
       consolePrint(`No player named "${val.slice(6).trim()}".`, 'result'); return;
     }
 
-    // Compute equity only for players still in the hand
+    // Compute each player's perceived equity independently (they can't see opponents' cards)
     const active = withCards.filter(p => !p.folded);
-    let equities = null;
-    if (active.length > 0 && window.computeEquityAllPlayers) {
-      equities = window.computeEquityAllPlayers(active.map(p => p.hand), G.board);
+    const numOpponents = Math.max(1, active.length - 1);
+    const perceivedEquities = {};
+    if (window.computePerceivedEquity) {
+      for (const p of active) {
+        perceivedEquities[p.id] = window.computePerceivedEquity(p.hand, G.board, numOpponents);
+      }
     }
 
     const printRow = p => {
       if (p.folded) {
         consolePrint(`${p.name}: — [folded]`, 'result');
       } else {
-        const idx = active.indexOf(p);
-        const pct = equities ? (equities[idx] * 100).toFixed(1) : '?';
+        const eq = perceivedEquities[p.id];
+        const pct = eq != null ? (eq * 100).toFixed(1) : '?';
         consolePrint(`${p.name}: ${pct}%`, 'result');
       }
     };

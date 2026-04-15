@@ -1,5 +1,5 @@
 'use strict';
-// Loose player: plays almost any two cards, calls a lot, occasional raise.
+// Loose player: plays almost any two cards, calls a lot, raises with decent hands.
 window.LoosePlayer = {
   name: 'Loose',
   decide({ handStrength, callAmount, minRaiseTotal, maxRaiseTotal }) {
@@ -10,13 +10,12 @@ window.LoosePlayer = {
       return { action: 'fold' };
     }
 
-    // Occasional raise with decent hands
-    if (handStrength > 0.58 && minRaiseTotal <= maxRaiseTotal && Math.random() < 0.28) {
-      const amount = Math.min(Math.floor(minRaiseTotal * 2), maxRaiseTotal);
+    // Raise more often with decent hands
+    if (handStrength > 0.48 && minRaiseTotal <= maxRaiseTotal && Math.random() < 0.50) {
+      const amount = Math.min(Math.floor(minRaiseTotal * 2.5), maxRaiseTotal);
       return { action: 'raise', amount };
     }
 
-    // Otherwise just call/check everything
     return { action: 'call' };
   }
 };
