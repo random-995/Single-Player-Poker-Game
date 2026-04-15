@@ -11,14 +11,15 @@ var viewingHandIdx  = -1;
 // ── Game class ────────────────────────────────────────────────────────────
 class Game {
   constructor(configs, options = {}) {
-    this.blindBets = options.blindBets !== false;
+    this.blindBets    = options.blindBets !== false;
+    this.startingChips = options.startingChips || STARTING_CHIPS;
     this.players   = configs.map((cfg, i) => ({
       id:           i,
       name:         cfg.label,
       isHuman:      cfg.type === 'human',
       strategy:     cfg.type === 'human' || cfg.type === 'empty' ? null : cfg.type,
       skill:        cfg.skill || null,
-      chips:        cfg.type === 'empty' ? 0 : STARTING_CHIPS,
+      chips:        cfg.type === 'empty' ? 0 : this.startingChips,
       hand:         [],
       folded:       cfg.type === 'empty',
       allIn:        false,

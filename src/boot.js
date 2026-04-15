@@ -174,8 +174,9 @@ window.addEventListener('DOMContentLoaded', () => {
     playerCardsVisible = [false, false, false, false];
     viewingHandIdx = -1;
 
-    const blindBets = document.getElementById('opt-blinds').checked;
-    G = new Game(configs, { blindBets });
+    const blindBets    = document.getElementById('opt-blinds').checked;
+    const startingChips = Math.max(100, +document.getElementById('opt-starting-chips').value || 5000);
+    G = new Game(configs, { blindBets, startingChips });
     if (initSeed !== '') G.pendingNextSeed = initSeed;
     render();
     G.run();

@@ -4,7 +4,7 @@
   "description": "",
   "main": "boot.js",
   "scripts": {
-    "build": "esbuild equity.js --bundle --format=iife --outfile=equity.bundle.js"
+    "build": "esbuild src/equity.js --bundle --format=iife --outfile=src/equity.bundle.js"
   },
   "keywords": [],
   "author": "",

@@ -120,9 +120,13 @@
           <option value="4" selected>4</option>
         </select>
       </label>
+      <label class="setting-opt">
+        <span>Starting Chips</span>
+        <input type="number" id="opt-starting-chips" value="5000" min="100" step="100" style="width:80px">
+      </label>
     </div>
 
-    <div class="setup-info">Starting chips $5,000 · Blinds $50 / $100</div>
+    <div class="setup-info">Blinds $50 / $100</div>
     <button id="btn-start">Start Game</button>
   </div>
 </div>
@@ -277,20 +281,20 @@
 </div>
 
 <!-- Poker equity (poker-odds-calc bundled) -->
-<script src="equity.bundle.js"></script>
+<script src="src/equity.bundle.js"></script>
 <!-- Strategy files -->
-<script src="strat/tight.js"></script>
-<script src="strat/aggressive.js"></script>
-<script src="strat/loose.js"></script>
+<script src="src/strat/tight.js"></script>
+<script src="src/strat/aggressive.js"></script>
+<script src="src/strat/loose.js"></script>
 <!-- Player files -->
-<script src="players/wm.js"></script>
-<script src="players/thief.js"></script>
-<script src="players/neumann.js"></script>
+<script src="src/players/wm.js"></script>
+<script src="src/players/thief.js"></script>
+<script src="src/players/neumann.js"></script>
 <!-- Core -->
-<script src="constants.js"></script>
-<script src="cards.js"></script>
-<script src="game.js"></script>
-<script src="ui.js"></script>
-<script src="boot.js"></script>
+<script src="src/constants.js"></script>
+<script src="src/cards.js"></script>
+<script src="src/game.js"></script>
+<script src="src/ui.js"></script>
+<script src="src/boot.js"></script>
 </body>
 </html>
