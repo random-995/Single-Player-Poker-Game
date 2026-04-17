@@ -50,6 +50,13 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
   document.getElementById('raise-slider').addEventListener('input', syncRaiseLabel);
+  document.getElementById('raise-input').addEventListener('input', () => {
+    const sl  = document.getElementById('raise-slider');
+    const inp = document.getElementById('raise-input');
+    const v   = Math.max(+sl.min, Math.min(+sl.max, +inp.value || +sl.min));
+    sl.value = v;
+    document.getElementById('raise-label-btn').textContent = `$${v}`;
+  });
 
   // Next-hand panel
   document.getElementById('btn-next-hand').addEventListener('click', () => {
@@ -119,11 +126,10 @@ window.addEventListener('DOMContentLoaded', () => {
     const num = +numPlayersSelect.value;
     seat0Row.style.display   = sp ? 'flex' : 'none';
     seat0Label.style.display = sp ? 'none' : 'flex';
-    // In human mode: seats 1..3 are robots (indices 1-3); show up to num-1 of them.
-    // In spectate mode: seats 0..3 are robots; seat0-row handled above, show seats 1..num-1.
-    document.getElementById('seat1-row').style.display = num >= 2 ? 'flex' : 'none';
-    document.getElementById('seat2-row').style.display = num >= 3 ? 'flex' : 'none';
-    document.getElementById('seat3-row').style.display = num >= 4 ? 'flex' : 'none';
+    // seat1-row..seat9-row: show when num is large enough (same rule for both modes)
+    for (let i = 1; i <= 9; i++) {
+      document.getElementById(`seat${i}-row`).style.display = num >= i + 1 ? 'flex' : 'none';
+    }
   }
   modeHuman.addEventListener('change', refreshSeats);
   modeSpectate.addEventListener('change', refreshSeats);
@@ -143,8 +149,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let configs;
 
     if (spectate) {
-      configs = [0, 1, 2, 3].map(i => {
-        if (i >= numPlayers) return { type: 'empty', skill: null, label: '' };
+      configs = Array.from({ length: numPlayers }, (_, i) => {
         const playerKey = document.getElementById(`player${i}`).value;
         const player    = PLAYERS[playerKey]();
         const type      = document.getElementById(`robot${i}`).value;
@@ -154,11 +159,11 @@ window.addEventListener('DOMContentLoaded', () => {
       const humanSkill = document.getElementById('player-human').value;
       configs = [
         { type: 'human', skill: humanSkill === 'none' ? null : humanSkill, label: 'You' },
-        ...[1, 2, 3].map(i => {
-          if (i >= numPlayers) return { type: 'empty', skill: null, label: '' };
-          const playerKey = document.getElementById(`player${i}`).value;
+        ...Array.from({ length: numPlayers - 1 }, (_, i) => {
+          const idx       = i + 1;
+          const playerKey = document.getElementById(`player${idx}`).value;
           const player    = PLAYERS[playerKey]();
-          const type      = document.getElementById(`robot${i}`).value;
+          const type      = document.getElementById(`robot${idx}`).value;
           return { type, skill: player.skill, label: player.name };
         }),
       ];
@@ -171,7 +176,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const hasHuman = configs.some(c => c.type === 'human');
     if (!hasHuman) document.getElementById('action-area').style.display = 'none';
 
-    playerCardsVisible = [false, false, false, false];
+    playerCardsVisible = new Array(numPlayers).fill(false);
     viewingHandIdx = -1;
 
     const blindBets    = document.getElementById('opt-blinds').checked;

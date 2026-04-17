@@ -31,7 +31,7 @@
           <select id="player-human" class="player-sel">
             <option value="none">No Skill</option>
             <option value="swap">Swap</option>
-            <option value="prediction">Prediction</option>
+            <option value="river_prediction">River Prediction</option>
           </select>
         </div>
       </div>
@@ -96,6 +96,96 @@
           </select>
         </div>
       </div>
+      <div class="seat-row" id="seat4-row" style="display:none">
+        <span class="seat-num">Seat 5</span>
+        <div class="seat-selects">
+          <select id="player4" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot4">
+            <option value="tight">Tight</option>
+            <option value="aggressive" selected>Aggressive</option>
+            <option value="loose">Loose</option>
+          </select>
+        </div>
+      </div>
+      <div class="seat-row" id="seat5-row" style="display:none">
+        <span class="seat-num">Seat 6</span>
+        <div class="seat-selects">
+          <select id="player5" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot5">
+            <option value="tight">Tight</option>
+            <option value="aggressive">Aggressive</option>
+            <option value="loose" selected>Loose</option>
+          </select>
+        </div>
+      </div>
+      <div class="seat-row" id="seat6-row" style="display:none">
+        <span class="seat-num">Seat 7</span>
+        <div class="seat-selects">
+          <select id="player6" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot6">
+            <option value="tight" selected>Tight</option>
+            <option value="aggressive">Aggressive</option>
+            <option value="loose">Loose</option>
+          </select>
+        </div>
+      </div>
+      <div class="seat-row" id="seat7-row" style="display:none">
+        <span class="seat-num">Seat 8</span>
+        <div class="seat-selects">
+          <select id="player7" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot7">
+            <option value="tight">Tight</option>
+            <option value="aggressive" selected>Aggressive</option>
+            <option value="loose">Loose</option>
+          </select>
+        </div>
+      </div>
+      <div class="seat-row" id="seat8-row" style="display:none">
+        <span class="seat-num">Seat 9</span>
+        <div class="seat-selects">
+          <select id="player8" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot8">
+            <option value="tight">Tight</option>
+            <option value="aggressive">Aggressive</option>
+            <option value="loose" selected>Loose</option>
+          </select>
+        </div>
+      </div>
+      <div class="seat-row" id="seat9-row" style="display:none">
+        <span class="seat-num">Seat 10</span>
+        <div class="seat-selects">
+          <select id="player9" class="player-sel">
+            <option value="wm">W.M</option>
+            <option value="thief">Thief</option>
+            <option value="neumann">Neumann</option>
+          </select>
+          <select id="robot9">
+            <option value="tight" selected>Tight</option>
+            <option value="aggressive">Aggressive</option>
+            <option value="loose">Loose</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <!-- Seed row -->
@@ -118,6 +208,12 @@
           <option value="2">2</option>
           <option value="3">3</option>
           <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
         </select>
       </label>
       <label class="setting-opt">
@@ -206,6 +302,102 @@
         <div class="prow-bet"></div>
       </div>
 
+      <div class="prow" id="prow-4">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="4" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="4" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+      <div class="prow" id="prow-5">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="5" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="5" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+      <div class="prow" id="prow-6">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="6" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="6" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+      <div class="prow" id="prow-7">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="7" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="7" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+      <div class="prow" id="prow-8">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="8" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="8" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
+      <div class="prow" id="prow-9">
+        <div class="prow-top">
+          <div class="prow-left">
+            <div class="prow-badges"></div>
+            <div class="prow-name"></div>
+          </div>
+          <div class="prow-right">
+            <div class="prow-chips"></div>
+            <button class="btn-show-cards" data-seat="9" style="display:none">Show</button>
+            <button class="btn-leave" data-seat="9" style="display:none">Leave</button>
+          </div>
+        </div>
+        <div class="prow-cards"></div>
+        <div class="prow-bet"></div>
+      </div>
+
     </div>
   </aside>
 
@@ -232,7 +424,7 @@
           <button id="btn-raise" class="abtn raise">Raise ▲</button>
           <div id="raise-box">
             <input type="range" id="raise-slider" min="200" max="5000" value="200">
-            <span id="raise-label">$200</span>
+            <input type="number" id="raise-input" min="200" max="5000" value="200">
             <button id="btn-confirm-raise" class="abtn confirm">
               Raise to <span id="raise-label-btn">$200</span>
             </button>
@@ -282,10 +474,8 @@
 
 <!-- Poker equity (poker-odds-calc bundled) -->
 <script src="src/equity.bundle.js"></script>
-<!-- Strategy files -->
-<script src="src/strat/tight.js"></script>
-<script src="src/strat/aggressive.js"></script>
-<script src="src/strat/loose.js"></script>
+<!-- Strategy -->
+<script src="src/strat/strategy.js"></script>
 <!-- Player files -->
 <script src="src/players/wm.js"></script>
 <script src="src/players/thief.js"></script>

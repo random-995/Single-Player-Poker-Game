@@ -1,2 +1,2 @@
 'use strict';
-window.PlayerNeumann = { name: 'Neumann', skill: 'prediction' };
+window.PlayerNeumann = { name: 'Neumann', skill: 'river_prediction' };

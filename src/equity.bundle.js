@@ -6699,11 +6699,13 @@
       for (const r of ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"])
         for (const s of ["c", "d", "h", "s"])
           ALL_CARDS.push(r + s);
-      window.computePerceivedEquity = function(hole, board, numOpponents, iterations = 800) {
+      window.computePerceivedEquity = function(hole, board, numOpponents, iterations = 800, forcedRiver = null) {
         numOpponents = Math.max(1, numOpponents || 1);
         const holeStr = hole.map(toOddsCard);
         const boardStr = board.map(toOddsCard);
+        const forcedRiverStr = forcedRiver ? toOddsCard(forcedRiver) : null;
         const knownSet = /* @__PURE__ */ new Set([...holeStr, ...boardStr]);
+        if (forcedRiverStr) knownSet.add(forcedRiverStr);
         const remaining = ALL_CARDS.filter((c) => !knownSet.has(c));
         let wins = 0, ties = 0, valid = 0;
         for (let i = 0; i < iterations; i++) {
@@ -6714,7 +6716,8 @@
             t.addPlayer(holeStr);
             for (let j = 0; j < numOpponents; j++) t.addPlayer([d[idx++], d[idx++]]);
             const fullBoard = [...boardStr];
-            while (fullBoard.length < 5) fullBoard.push(d[idx++]);
+            while (fullBoard.length < 4) fullBoard.push(d[idx++]);
+            if (fullBoard.length < 5) fullBoard.push(forcedRiverStr || d[idx++]);
             t.setBoard(fullBoard);
             const res = t.calculate().result;
             wins += res.players[0].wins;
@@ -6724,6 +6727,38 @@
           }
         }
         return valid === 0 ? 1 / (numOpponents + 1) : (wins + ties / 2) / valid;
+      };
+      window.computeEquity = function(hole, board, numOpponents) {
+        return window.computePerceivedEquity(hole, board, numOpponents, 800);
+      };
+      window.computeMatchupEquity = function(allHoles, board, iterations = 1200) {
+        const holesStr = allHoles.map((h) => h.map(toOddsCard));
+        const boardStr = board.map(toOddsCard);
+        const knownSet = /* @__PURE__ */ new Set([...holesStr.flat(), ...boardStr]);
+        const remaining = ALL_CARDS.filter((c) => !knownSet.has(c));
+        const wins = new Array(allHoles.length).fill(0);
+        const ties = new Array(allHoles.length).fill(0);
+        let valid = 0;
+        for (let i = 0; i < iterations; i++) {
+          const d = shuffleArr(remaining);
+          let idx = 0;
+          try {
+            const t = new TexasHoldem();
+            for (const h of holesStr) t.addPlayer(h);
+            const fullBoard = [...boardStr];
+            while (fullBoard.length < 5) fullBoard.push(d[idx++]);
+            t.setBoard(fullBoard);
+            const players = t.calculate().result.players;
+            for (let j = 0; j < players.length; j++) {
+              wins[j] += players[j].wins;
+              ties[j] += players[j].ties;
+            }
+            valid++;
+          } catch (e) {
+          }
+        }
+        if (valid === 0) return allHoles.map(() => 1 / allHoles.length);
+        return wins.map((w, j) => (w + ties[j] / 2) / valid);
       };
     }
   });

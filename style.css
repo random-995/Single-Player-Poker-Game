@@ -42,6 +42,8 @@ body {
   border: 1px solid var(--border2);
   padding: 40px 44px 44px;
   background: var(--bg1);
+  max-height: 92vh;
+  overflow-y: auto;
 }
 
 .setup-card h1 {
@@ -311,7 +313,13 @@ body {
   border: 1px solid var(--border); padding: 10px 14px; background: var(--bg);
 }
 #raise-slider { width: 130px; accent-color: var(--white); }
-#raise-label { font-size: 0.9rem; color: var(--white); min-width: 56px; text-align: right; }
+#raise-input {
+  width: 90px; background: var(--bg1); color: var(--white);
+  border: 1px solid var(--border2); padding: 5px 8px;
+  font-family: inherit; font-size: 0.9rem; outline: none; text-align: right;
+}
+#raise-input:focus { border-color: var(--text-mid); }
+#raise-input::-webkit-inner-spin-button { opacity: 0.4; }
 
 /* ── Next-hand panel ────────────────────────────────────────────────────── */
 #next-hand-panel {

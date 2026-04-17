@@ -3,18 +3,20 @@
 // ── Human action buttons ──────────────────────────────────────────────────
 function waitForHuman() { return new Promise(r => { resolveHuman = r; }); }
 
-function showButtons(callAmt, currentBet, lastRaise, myChips, myBetRound) {
+function showButtons(callAmt, currentBet, lastRaise, myChips, myBetRound, hasRaised = false) {
   document.getElementById('action-area').classList.add('active');
   const isFree = callAmt <= 0;
   document.getElementById('btn-fold').style.display = isFree ? 'none' : '';
   document.getElementById('btn-call').textContent   = isFree ? 'Check' : `Call  $${callAmt}`;
   const minR = currentBet + lastRaise, maxR = myChips + myBetRound;
-  const canR = myChips > callAmt && minR <= maxR;
+  const canR = !hasRaised && myChips > callAmt && minR <= maxR;
   document.getElementById('btn-raise').style.display = canR ? '' : 'none';
   document.getElementById('raise-box').style.display = 'none';
   if (canR) {
-    const sl = document.getElementById('raise-slider');
-    sl.min = minR; sl.max = maxR; sl.value = Math.min(minR * 2, maxR);
+    const sl  = document.getElementById('raise-slider');
+    const inp = document.getElementById('raise-input');
+    sl.min  = minR; sl.max  = maxR; sl.value  = Math.min(minR * 2, maxR);
+    inp.min = minR; inp.max = maxR;
     syncRaiseLabel();
   }
 }
@@ -25,9 +27,9 @@ function hideButtons() {
 }
 
 function syncRaiseLabel() {
-  const v = `$${document.getElementById('raise-slider').value}`;
-  document.getElementById('raise-label').textContent     = v;
-  document.getElementById('raise-label-btn').textContent = v;
+  const v = document.getElementById('raise-slider').value;
+  document.getElementById('raise-input').value           = v;
+  document.getElementById('raise-label-btn').textContent = `$${v}`;
 }
 
 // ── Next-street button ────────────────────────────────────────────────────
@@ -115,8 +117,22 @@ function handleConsoleCmd(raw) {
     const numOpponents = Math.max(1, active.length - 1);
     const perceivedEquities = {};
     if (window.computePerceivedEquity) {
+      // Find river predictions (two cards: one real, one fake)
+      let riverPredictions = null;
+      if (G.street < 3) {
+        for (const pp of G.players) {
+          if (pp.riverPredictions) { riverPredictions = pp.riverPredictions; break; }
+        }
+      }
       for (const p of active) {
-        perceivedEquities[p.id] = window.computePerceivedEquity(p.hand, G.board, numOpponents);
+        if (riverPredictions) {
+          const [c1, c2] = riverPredictions;
+          const s1 = window.computePerceivedEquity(p.hand, G.board, numOpponents, 800, c1);
+          const s2 = window.computePerceivedEquity(p.hand, G.board, numOpponents, 800, c2);
+          perceivedEquities[p.id] = 0.5 * s1 + 0.5 * s2;
+        } else {
+          perceivedEquities[p.id] = window.computePerceivedEquity(p.hand, G.board, numOpponents);
+        }
       }
     }
 
@@ -125,36 +141,35 @@ function handleConsoleCmd(raw) {
         consolePrint(`${p.name}: — [folded]`, 'result');
       } else {
         const eq = perceivedEquities[p.id];
-        const pct = eq != null ? (eq * 100).toFixed(1) : '?';
-        consolePrint(`${p.name}: ${pct}%`, 'result');
+        const val = eq != null ? (eq * 100).toFixed(1) : '?';
+        consolePrint(`${p.name}: ${val}`, 'result');
       }
     };
 
-    consolePrint('── Win Probability ──', 'result');
+    consolePrint('─────score─────', 'result');
     if (target) {
       printRow(target);
     } else {
       for (const p of withCards) printRow(p);
     }
-    consolePrint('─────────────────────', 'result');
+    consolePrint('───────────────', 'result');
     return;
   }
 
-  // Prediction calculation command
-  if (val.toLowerCase() === 'prediction') {
+  // Matchup command: show actual win probabilities using all players' real cards
+  if (val.toLowerCase() === 'matchup') {
     if (!G) { consolePrint('No game running.', 'result'); return; }
-    const human = G.players.find(p => p.isHuman);
-    if (!human || human.skill !== 'prediction') {
-      consolePrint('You do not have the Prediction skill.', 'result');
-    } else if (!G.humanCanPredict) {
-      consolePrint('Prediction is only available during the turn betting round.', 'result');
-    } else {
-      const res = G.doHumanPrediction();
-      if (res) {
-        consolePrint(`Peeked card: ${res.card}  (1 of ${res.N} hidden)`, 'result');
-        consolePrint(`Weighted strength: ${(res.weighted * 100).toFixed(1)}%`, 'result');
-      }
+    const active = G.players.filter(p => !p.eliminated && !p.folded && p.hand.length > 0);
+    if (active.length < 2) { consolePrint('Need at least 2 active players with cards.', 'result'); return; }
+    if (!window.computeMatchupEquity) { consolePrint('Equity engine not loaded.', 'result'); return; }
+
+    const equities = window.computeMatchupEquity(active.map(p => p.hand), G.board);
+    consolePrint('── Matchup (actual) ──', 'result');
+    for (let i = 0; i < active.length; i++) {
+      const cards = active[i].hand.map(c => c.toString()).join(' ');
+      consolePrint(`${active[i].name} [${cards}]: ${(equities[i] * 100).toFixed(1)}%`, 'result');
     }
+    consolePrint('─────────────────────', 'result');
     return;
   }
 
@@ -248,7 +263,7 @@ function render() {
     boardEl.innerHTML += G.board[i] ? cardHTML(G.board[i]) : '<div class="card placeholder"></div>';
 
   // Player rows
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < G.players.length; i++) {
     const p  = G.players[i];
     const el = document.getElementById(`prow-${i}`);
     if (!el) continue;
@@ -274,8 +289,8 @@ function render() {
 
     // Dealer / blind badges
     const isD  = i === G.dealerSeat;
-    const isSB = !isD && i === G.nextSeat(G.dealerSeat);
-    const isBB = !isD && !isSB && i === G.nextSeat(G.nextSeat(G.dealerSeat));
+    const isSB = i === G.sbSeat;
+    const isBB = i === G.bbSeat;
     el.querySelector('.prow-badges').innerHTML =
       (isD  ? '<span class="badge d">D</span>'   : '') +
       (isSB ? '<span class="badge sb">SB</span>' : '') +
